@@ -5,7 +5,7 @@ in vec3 posWorld;
 in vec3 normalWorld;
 in vec3 posModel;
 
-out vec4 colour;
+out vec4 color;
 
 const float PI = 3.14159265359;
 
@@ -141,6 +141,6 @@ void main()
     
     res += computeSpotLight(posWorld, normalWorld, toEye) * light.isSpot;
 
-    if(useFBO || isPicked) colour = vec4(indexColor, 1.0);
-    else colour = useTexture ? vec4(res, 1.0) * texture(theTexture, TexCoord) : vec4(res, 1.0);
+    if(useFBO || isPicked) color = vec4(indexColor, 1.0);
+    else color = useTexture ? vec4(res, 1.0) * texture(theTexture, TexCoord) : vec4(res, 1.0);
 }
