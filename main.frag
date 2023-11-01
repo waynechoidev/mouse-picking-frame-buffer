@@ -42,6 +42,8 @@ layout(std140) uniform Light
 
 uniform sampler2D theTexture;
 uniform bool isPicked;
+uniform bool useFBO;
+uniform vec3 indexColor;
 
 float calcAttenuation(float d, float falloffStart, float falloffEnd)
 {
@@ -139,5 +141,6 @@ void main()
     
     res += computeSpotLight(posWorld, normalWorld, toEye) * light.isSpot;
 
-    colour = isPicked ? vec4(1.0, 0.0, 0.0, 1.0) : useTexture ? vec4(res, 1.0) * texture(theTexture, TexCoord) : vec4(res, 1.0);
+    if(useFBO || isPicked) colour = vec4(indexColor, 1.0);
+    else colour = useTexture ? vec4(res, 1.0) * texture(theTexture, TexCoord) : vec4(res, 1.0);
 }

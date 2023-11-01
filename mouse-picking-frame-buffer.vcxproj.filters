@@ -95,6 +95,5 @@
     <None Include="main.vert" />
     <None Include="skybox.frag" />
     <None Include="skybox.vert" />
-    <None Include="pick.frag" />
   </ItemGroup>
 </Project>

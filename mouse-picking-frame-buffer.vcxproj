@@ -157,7 +157,6 @@
   <ItemGroup>
     <None Include="main.frag" />
     <None Include="main.vert" />
-    <None Include="pick.frag" />
     <None Include="skybox.frag" />
     <None Include="skybox.vert" />
   </ItemGroup>

@@ -26,13 +26,11 @@ int main()
 	Program mainProgram = Program();
 	mainProgram.createFromFiles("main.vert", "main.frag");
 	GLuint isPickedUniform = glGetUniformLocation(mainProgram.getID(), "isPicked");
+	GLuint useFBOUniform = glGetUniformLocation(mainProgram.getID(), "useFBO");
+	GLuint indexColorUniform = glGetUniformLocation(mainProgram.getID(), "indexColor");
 
 	Program cubemapProgram = Program();
 	cubemapProgram.createFromFiles("skybox.vert", "skybox.frag");
-
-	Program pickProgram = Program();
-	pickProgram.createFromFiles("main.vert", "pick.frag");
-	GLuint indexColorUniform = glGetUniformLocation(pickProgram.getID(), "indexColor");
 
 	UniformBuffer UBO = UniformBuffer(mainProgram.getID());
 	UBO.genVertexBuffers();
@@ -40,13 +38,13 @@ int main()
 	
 	Sphere sphere = Sphere(1.0f);
 	sphere.initialise();
-	sphere.setIndexColor(255, 0, 0);
+	sphere.setIndexColor(0, 0, 255);
 	Texture earthTexture = Texture();
 	earthTexture.initialise("textures/map.jpg");
 
 	Box box = Box(glm::vec3(1.5f));
 	box.initialise();
-	box.setIndexColor(0, 255, 0);
+	box.setIndexColor(255, 0, 0);
 	Texture boxTexture = Texture();
 	boxTexture.initialise("textures/box.jpg");
 
@@ -145,9 +143,13 @@ int main()
 		boxModel = glm::rotate(boxModel, rotation.y, glm::vec3(0.0f, 1.0f, 0.0f));
 		boxModel = glm::rotate(boxModel, rotation.z, glm::vec3(0.0f, 0.0f, 1.0f));
 
+		// Start to draw main objects
+		mainProgram.use();
+		UBO.bindFragmentBuffers(useTexture, camera.getPosition(), material, light);
+
 		// Start to check pick
+		glUniform1i(useFBOUniform, 1);
 		glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
-		pickProgram.use();
 
 		// Draw index color for sphere
 		UBO.bindVertexBuffers(sphereModel, projection, camera.calculateViewMatrix());
@@ -167,21 +169,19 @@ int main()
 		int y = (int)cursor.y;
 		glReadPixels(x, y, 1, 1, GL_RGB, GL_UNSIGNED_BYTE, pickedColor);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-		
-		// Start to draw main objects
-		mainProgram.use();
-		UBO.bindFragmentBuffers(useTexture, camera.getPosition(), material, light);
-
+		glUniform1i(useFBOUniform, 0);
+	
 		// Draw sphere
 		UBO.bindVertexBuffers(sphereModel, projection, camera.calculateViewMatrix());
 		earthTexture.use();
-	
+		glUniform3f(indexColorUniform, (GLfloat)sphereIndexColor[0] / 255, (GLfloat)sphereIndexColor[1] / 255, (GLfloat)sphereIndexColor[2] / 255);
 		glUniform1i(isPickedUniform, sphere.checkIndexColor(pickedColor));
 		sphere.draw();
 
 		// Draw box
 		UBO.bindVertexBuffers(boxModel, projection, camera.calculateViewMatrix());
 		boxTexture.use();
+		glUniform3f(indexColorUniform, (GLfloat)boxIndexColor[0] / 255, (GLfloat)boxIndexColor[1] / 255, (GLfloat)boxIndexColor[2] / 255);
 		glUniform1i(isPickedUniform, box.checkIndexColor(pickedColor));
 		box.draw();
 		
